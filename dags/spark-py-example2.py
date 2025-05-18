@@ -5,10 +5,12 @@ from airflow.providers.cncf.kubernetes.sensors.spark_kubernetes import SparkKube
 from airflow.models import Variable
 from kubernetes.client import models as k8s
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
+from airflow.utils.dates import days_ago
 
 default_args={
    'depends_on_past': False,
    'email': ['abcd@gmail.com'],
+   'start_date': days_ago(1),
    'email_on_failure': False,
    'email_on_retry': False,
    'retries': 1,
