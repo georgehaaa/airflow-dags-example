@@ -39,7 +39,7 @@ dag = DAG(
 submit = SparkKubernetesOperator(
     task_id='spark_transform_data',
     namespace='spark-operator',
-    application_file='airflow-dags-example/spark-pi-py.yml',
+    application_file='airflow-dags-example/spark-pi-py.yaml',
     kubernetes_conn_id='k8s_conn',
     do_xcom_push=True,
 )
