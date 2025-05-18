@@ -6,7 +6,8 @@ metadata:
   name: spark-pi
   namespace: spark-operator
 spec:
-  type: Scala
+  type: Python
+  pythonVersion: "3"
   mode: cluster
   # Replce with your own spark image
   image: "gcr.io/spark-operator/spark:v3.1.1"
