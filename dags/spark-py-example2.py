@@ -20,8 +20,7 @@ with DAG(
    'my-second-dag',
    default_args=default_args,
    description='simple dag',
-   schedule_interval=timedelta(days=1),
-   start_date=datetime(2025, 05, 18),
+   schedule_interval=timedelta(days=1),   
    catchup=False,
    tags=['example']
 ) as dag:
