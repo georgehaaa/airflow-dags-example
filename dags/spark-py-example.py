@@ -1,3 +1,13 @@
+"""
+This is an example DAG which uses SparkKubernetesOperator and SparkKubernetesSensor.
+In this example, we create two tasks which execute sequentially.
+The first task is to submit sparkApplication on Kubernetes cluster(the example uses spark-pi application).
+and the second task is to check the final state of the sparkApplication that submitted in the first state.
+
+Spark-on-k8s operator is required to be already installed on Kubernetes
+https://github.com/GoogleCloudPlatform/spark-on-k8s-operator
+"""
+
 from datetime import timedelta, datetime
 
 # [START import_module]
@@ -5,7 +15,10 @@ from datetime import timedelta, datetime
 from airflow import DAG
 # Operators; we need this to operate!
 from airflow.providers.cncf.kubernetes.operators.spark_kubernetes import SparkKubernetesOperator
+from airflow.providers.cncf.kubernetes.sensors.spark_kubernetes import SparkKubernetesSensor
+from airflow.providers.cncf.kubernetes.hooks.kubernetes import KubernetesHook
 from airflow.utils.dates import days_ago
+k8s_hook = KubernetesHook(conn_id='kubernetes_config')
 # [END import_module]
 
 # [START default_args]
@@ -19,28 +32,28 @@ default_args = {
     'email_on_failure': False,
     'email_on_retry': False,
     'max_active_runs': 1,
-    'retries': 0,
+    'retries': 3
 }
 # [END default_args]
 
 # [START instantiate_dag]
 
-with DAG(
-    dag_id='spark_pi',
+dag = DAG(
+    'spark_pi',
     start_date=days_ago(1),
     default_args=default_args,
-    schedule=None,
+    schedule_interval=timedelta(days=1),
     tags=['example']
-) as dag:
-    spark_pi_task = SparkKubernetesOperator(
-        task_id='spark_example',
-        namespace='airflow',
-        # relative path to DAG file
-        # (1)
-        application_file='airflow-dags-example/spark-pi.yaml',
-        # (2)
-        kubernetes_conn_id='k8s_conn',
-        # (3)
-        # do_xcom_push=True,
-    )
-    spark_pi_task
+)
+
+submit = SparkKubernetesOperator(
+    task_id='spark_transform_data',
+    namespace='spark-operator',
+    application_file='airflow-dags-example/spark-pi.yaml',
+    kubernetes_conn_id='k8s_conn',
+    do_xcom_push=True,
+)
+
+
+
+submit
